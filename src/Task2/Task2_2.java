@@ -1,4 +1,4 @@
-package Task2_2;
+package Task2;
 public class Task2_2 {
     public static void main(String[] args) {
         //1. Создайте метод printThreeWords(), который при вызове должен отпечатать в столбец три слова: Orange, Banana, Apple
