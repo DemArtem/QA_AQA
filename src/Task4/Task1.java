@@ -131,7 +131,7 @@ class Bowl {
     }
 }
 
-public class Main {
+public class Task1 {
     public static void main(String[] args) {
         Dog dog1 = new Dog("Бобик");
         Cat cat1 = new Cat("Мурка");
