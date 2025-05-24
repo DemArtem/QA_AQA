@@ -1,12 +1,17 @@
 package Task4;
-
+/*
+Применяя интерфейсы написать программу расчета периметра и площади геометрических фигур: круг, прямоугольник, треугольник.
+Задать для каждой фигуры цвет заливки и цвет границы.
+Результат полученных характеристик [ Периметр, площадь, цвет фона, цвет границ ] по каждой фигуре вывести в консоль.
+Попробуйте реализовать базовые методы, такие как расчет периметра фигур, в качестве дефолтных методов в интерфейсе.
+ */
 interface Shape {
     // Метод для расчета площади
     double area();
 
     // Метод для расчета периметра с дефолтной реализацией
     default double perimeter() {
-        return 0; // Дефолтный метод, может быть переопределен
+        return 0;
     }
 
     // Метод для получения цвета заливки
@@ -125,18 +130,5 @@ class Triangle implements Shape {
     @Override
     public String getBorderColor() {
         return borderColor;
-    }
-}
-
-public class Task2 {
-    public static void main(String[] args) {
-        Shape circle = new Circle(5, "Красный", "Черный");
-        Shape rectangle = new Rectangle(4, 6, "Зеленый", "Синий");
-        Shape triangle = new Triangle(3, 4, 5, "Желтый", "Фиолетовый");
-
-        System.out.println("Информация о фигурах:");
-        circle.displayInfo();
-        rectangle.displayInfo();
-        triangle.displayInfo();
     }
 }
