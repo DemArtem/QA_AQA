@@ -15,7 +15,6 @@ public class FactorialCalculator {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Введите число для вычисления его факториала: ");
         int number = scanner.nextInt();
-
         try {
             long result = factorial(number);
             System.out.println("Факториал числа " + number + " равен " + result);
