@@ -3,7 +3,7 @@ import java.util.Scanner;
 public class FactorialCalculator {
     public static long factorial(int number) {
         if (number < 0) {
-            throw new IllegalArgumentException("Факториал не определен для отрицательных чисел");
+            throw new IllegalArgumentException("Факториал отрицательного числа не определен");
         }
         long result = 1;
         for (int i = 1; i <= number; i++) {

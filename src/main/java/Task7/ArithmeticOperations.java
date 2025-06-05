@@ -29,4 +29,20 @@ public class ArithmeticOperations {
         }
         scanner.close();
     }
+
+    public int add(int i, int i1) {
+        return 0;
+    }
+
+    public int subtract(int i, int i1) {
+        return 0;
+    }
+
+    public int multiply(int i, int i1) {
+        return 0;
+    }
+
+    public double divide(int i, int i1) {
+        return 0;
+    }
 }
