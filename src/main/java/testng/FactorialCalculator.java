@@ -1,4 +1,4 @@
-package Task7;
+package testng;
 import java.util.Scanner;
 public class FactorialCalculator {
     public static long factorial(int number) {
