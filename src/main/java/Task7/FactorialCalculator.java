@@ -1,5 +1,6 @@
 package Task7;
 import java.util.Scanner;
+//позволяющую вычислить факториал числа;
 public class FactorialCalculator {
     public static long factorial(int number) {
         if (number < 0) {

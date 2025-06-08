@@ -1,11 +1,17 @@
 package Task7;
 import java.util.Scanner;
+//позволяющую найти площадь треугольника;
 public class TriangleAreaCalculator {
     public static double calculateArea(double a, double b, double c) {
         double s = (a + b + c) / 2;
         // Площадь по формуле Герона
         return Math.sqrt(s * (s - a) * (s - b) * (s - c));
     }
+
+    public static boolean isTriangle(double a, double b, double c) {
+        return a + b > c && a + c > b && b + c > a;
+    }
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Введите длину первой стороны треугольника: ");
@@ -16,7 +22,7 @@ public class TriangleAreaCalculator {
         double c = scanner.nextDouble();
 
         // Проверка на существование треугольника
-        if (a + b > c && a + c > b && b + c > a) {
+        if (isTriangle(a, b, c)) {
             double area = calculateArea(a, b, c);
             System.out.printf("Площадь треугольника с длинами сторон %.2f, %.2f и %.2f равна %.2f%n", a, b, c, area);
         } else {
