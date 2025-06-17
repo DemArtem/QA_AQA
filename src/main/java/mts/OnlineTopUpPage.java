@@ -1,46 +1,43 @@
 package mts;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 public class OnlineTopUpPage {
     private WebDriver driver;
+    private WebDriverWait wait;
+
+    // Локаторы
+    private By blockTitle = By.xpath("//h2[contains(text(), 'Онлайн пополнение ')]");
+    private By serviceOption = By.cssSelector(".service-option"); // Пример селектора для вариантов оплаты
+    private By continueButton = By.cssSelector(".button__default");
+    private By phoneField = By.id("connection-phone");
+    private By sumField = By.id("connection-sum");
+    private By emailField = By.id("connection-email");
 
     public OnlineTopUpPage(WebDriver driver) {
         this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // Исправлено
     }
 
-    private By serviceTypeDropdown = By.id("pay");
-    private By phoneNumberField = By.id("connection-phone");
-    private By amountField = By.id("connection-sum");
-    private By emailField = By.id("connection-email");
-    private By continueButton = By.xpath("//form[@id='pay-connection']//button[@type='submit']");
-
-    private By internetPhoneField = By.id("internet-phone");
-    private By internetAmountField = By.id("internet-sum");
-    private By internetEmailField = By.id("internet-email");
-
-    private By instalmentScoreField = By.id("score-instalment");
-    private By instalmentAmountField = By.id("instalment-sum");
-    private By instalmentEmailField = By.id("instalment-email");
-
-    private By arrearsScoreField = By.id("score-arrears");
-    private By arrearsAmountField = By.id("arrears-sum");
-    private By arrearsEmailField = By.id("arrears-email");
-
-    // Методы для взаимодействия с элементами
-    public void selectServiceType(String serviceType) {
-        driver.findElement(serviceTypeDropdown).sendKeys(serviceType);
+    public String getBlockTitle() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(blockTitle)).getText();
     }
 
-    public void fillPhoneNumber(String phoneNumber) {
-        driver.findElement(phoneNumberField).sendKeys(phoneNumber);
+    public void selectServiceOption(String option) {
+        // Логика для выбора варианта оплаты
+        WebElement optionElement = driver.findElement(By.xpath("//div[text()='" + option + "']"));
+        optionElement.click();
     }
 
-    public void fillAmount(String amount) {
-        driver.findElement(amountField).sendKeys(amount);
-    }
-
-    public void fillEmail(String email) {
+    public void fillFields(String phone, String sum, String email) {
+        driver.findElement(phoneField).sendKeys(phone);
+        driver.findElement(sumField).sendKeys(sum);
         driver.findElement(emailField).sendKeys(email);
     }
 
@@ -48,30 +45,7 @@ public class OnlineTopUpPage {
         driver.findElement(continueButton).click();
     }
 
-    public String getPhoneNumber() {
-        return driver.findElement(phoneNumberField).getAttribute("value");
-    }
-
-    public String getAmount() {
-        return driver.findElement(amountField).getAttribute("value");
-    }
-
-    // Методы для других форм
-    public void fillInternetFields(String phone, String amount, String email) {
-        driver.findElement(internetPhoneField).sendKeys(phone);
-        driver.findElement(internetAmountField).sendKeys(amount);
-        driver.findElement(internetEmailField).sendKeys(email);
-    }
-
-    public void fillInstalmentFields(String score, String amount, String email) {
-        driver.findElement(instalmentScoreField).sendKeys(score);
-        driver.findElement(instalmentAmountField).sendKeys(amount);
-        driver.findElement(instalmentEmailField).sendKeys(email);
-    }
-
-    public void fillArrearsFields(String score, String amount, String email) {
-        driver.findElement(arrearsScoreField).sendKeys(score);
-        driver.findElement(arrearsAmountField).sendKeys(amount);
-        driver.findElement(arrearsEmailField).sendKeys(email);
+    public String getPlaceholderForField(By fieldLocator) {
+        return driver.findElement(fieldLocator).getAttribute("placeholder");
     }
 }

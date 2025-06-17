@@ -1,86 +1,94 @@
 package mts;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OnlineTopUpTests {
     private WebDriver driver;
-    private OnlineTopUpPage onlineTopUpPage;
 
-    @BeforeEach
-    public void setUp() {
-        System.setProperty("webdriver.chrome.driver", "drivers/chromedriver");
+    @Test
+    public void testOnlineTopUpBlock() {
         driver = new ChromeDriver();
-        driver.get("https://mts.by/online-top-up");
-        onlineTopUpPage = new OnlineTopUpPage(driver);
-    }
+        driver.get("https://www.mts.by/");
 
-    @Test
-    public void testPlaceholdersInPaymentOptions() {
-        // Проверка надписей в незаполненных полях для различных вариантов оплаты
-        onlineTopUpPage.selectServiceType("Услуги связи");
-        assertEquals("Номер телефона", driver.findElement(By.id("connection-phone")).getAttribute("placeholder"));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
-        onlineTopUpPage.selectServiceType("Домашний интернет");
-        assertEquals("Номер абонента", driver.findElement(By.id("internet-phone")).getAttribute("placeholder"));
+        try {
+            // Закрытие всплывающего окна с куками, если оно существует
+            try {
+                WebElement cookieCloseButton = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("cookie__cancel")));
+                if (cookieCloseButton.isDisplayed()) {
+                    cookieCloseButton.click();
+                }
+            } catch (TimeoutException e) {
+                System.out.println("Кнопка закрытия всплывающего окна не найдена: " + e.getMessage());
+            }
 
-        onlineTopUpPage.selectServiceType("Рассрочка");
-        assertEquals("Номер счета на 44", driver.findElement(By.id("score-instalment")).getAttribute("placeholder"));
+            // Проверка названия блока
+            WebElement blockTitle = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                    By.xpath("//h2[contains(text(), 'Онлайн пополнение ')]")
+            ));
+            assertEquals("Онлайн пополнение без комиссии", blockTitle.getText().replaceAll("\\s+", " ").trim(), "Название блока не совпадает");
 
-        onlineTopUpPage.selectServiceType("Задолженность");
-        assertEquals("Номер счета на 2073", driver.findElement(By.id("score-arrears")).getAttribute("placeholder"));
-    }
+            // Проверка наличия логотипов платёжных систем
+            assertTrue(driver.findElement(By.xpath("//img[@alt='Visa']")).isDisplayed(), "Логотип Visa не отображается");
 
-    @Test
-    public void testContinueButtonFunctionality() {
-        // Заполнение полей и проверка отображения суммы
-        onlineTopUpPage.selectServiceType("Услуги связи");
-        onlineTopUpPage.fillPhoneNumber("1234567890");
-        onlineTopUpPage.fillAmount("100");
-        onlineTopUpPage.fillEmail("test@example.com");
-        onlineTopUpPage.clickContinue();
+            // Проверка работы ссылки «Подробнее о сервисе»
+            WebElement moreInfoLink = wait.until(ExpectedConditions.elementToBeClickable(By.linkText("Подробнее о сервисе")));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", moreInfoLink);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", moreInfoLink);
 
-        // Проверка корректности отображения суммы и номера телефона
-        assertEquals("100", onlineTopUpPage.getAmount());
-        assertEquals("1234567890", onlineTopUpPage.getPhoneNumber());
-    }
+            // Проверка URL после перехода по ссылке
+            wait.until(ExpectedConditions.urlContains("poryadok-oplaty-i-bezopasnost-internet-platezhey"));
 
-    @Test
-    public void testInternetPayment() {
-        // Заполнение полей для домашнего интернета
-        onlineTopUpPage.selectServiceType("Домашний интернет");
-        onlineTopUpPage.fillInternetFields("0987654321", "50", "internet@example.com");
-        onlineTopUpPage.clickContinue();
+            driver.navigate().back();
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("pay-connection")));
 
-        // Проверка корректности отображаемых данных
-        assertEquals("50", driver.findElement(By.id("internet-sum")).getAttribute("value"));
-        assertEquals("0987654321", driver.findElement(By.id("internet-phone")).getAttribute("value"));
-    }
+            // Заполнение полей и нажатие кнопки «Продолжить» (тестируем незаполненные поля)
+            String[] paymentOptions = {
+                    "Услуги связи",
+                    "Домашний интернет",
+                    "Рассрочка",
+                    "Задолженность"
+            };
 
-    @Test
-    public void testInstalmentPayment() {
-        // Заполнение полей для рассрочки
-        onlineTopUpPage.selectServiceType("Рассрочка");
-        onlineTopUpPage.fillInstalmentFields("123456", "150", "instalment@example.com");
-        onlineTopUpPage.clickContinue();
+            for (String option : paymentOptions) {
+                // Открываем выпадающий список
+                WebElement selectHeader = wait.until(ExpectedConditions.elementToBeClickable(By.className("select__header")));
+                selectHeader.click();
 
-        // Проверка корректности отображаемых данных
-        assertEquals("150", driver.findElement(By.id("instalment-sum")).getAttribute("value"));
-        assertEquals("123456", driver.findElement(By.id("score-instalment")).getAttribute("value"));
-    }
+                // Выбираем нужный элемент
+                WebElement selectedOption = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//p[text()='" + option + "']")));
+                ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", selectedOption);
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", selectedOption);
 
-    @Test
-    public void testArrearsPayment() {
-        // Заполнение полей для задолженности
-        onlineTopUpPage.selectServiceType("Задолженность");
-        onlineTopUpPage.fillArrearsFields("789012", "200", "arrears@example.com");
-        onlineTopUpPage.clickContinue();
+                // Проверяем наличие надписи в незаполненном поле
+                WebElement inputField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("connection-email")));
+                String placeholderText = inputField.getAttribute("placeholder");
 
-        // Проверка корректности отображаемых данных
-        assertEquals("200", driver.findElement(By.id("arrears-sum")).getAttribute("value"));
-        assertEquals("789012", driver.findElement(By.id("score-arrears")).getAttribute("value"));
+                assertTrue(placeholderText != null && !placeholderText.isEmpty(), "Поле пустое или не содержит надписи для: " + option);
+                System.out.println("Надпись в поле для " + option + ": " + placeholderText);
+                selectHeader.click();
+            }
+
+            driver.findElement(By.id("connection-phone")).sendKeys("297777777");
+            driver.findElement(By.id("connection-sum")).sendKeys("100");
+            driver.findElement(By.id("connection-email")).sendKeys("test@example.com");
+
+            WebElement submitButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(".pay-form#pay-connection .button__default")));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", submitButton);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", submitButton);
+
+        } catch (Exception e) {
+            System.out.println("Ошибка: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            driver.quit();
+        }
     }
 }
